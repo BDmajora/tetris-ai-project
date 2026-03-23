@@ -4,12 +4,22 @@ from .blocks import create_block, shapes
 from .position import check_collision, merge_grid_and_block
 
 class AI:
-    def __init__(self, game, hole_weight=3, height_weight=9, column_weight=5):
-        # Initialize AI with the game instance and weights for scoring
-        self.game = game
-        self.hole_weight = hole_weight
-        self.height_weight = height_weight
-        self.column_weight = column_weight
+    def __init__(self, game, hole_weight=3, height_weight=9, column_weight=5, use_quantized=False):
+        # This line must exist for the AI to access game state
+        self.game = game 
+        
+        if use_quantized:
+            from .optimize import optimize_ai_parameters
+            q_w, s, z = optimize_ai_parameters(hole_weight, height_weight, column_weight)
+            # Dequantize for immediate use
+            weights = (s * (q_w - z))
+            self.hole_weight = weights[0]
+            self.height_weight = weights[1]
+            self.column_weight = weights[2]
+        else:
+            self.hole_weight = hole_weight
+            self.height_weight = height_weight
+            self.column_weight = column_weight
 
     def get_best_move(self):
         # Find the best move by evaluating all possible rotations and positions
