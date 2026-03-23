@@ -3,9 +3,10 @@
 A high-performance Tetris Pygame and AI Tetris agent. This project implements a modular systems architecture to handle grid logic, block collisions, and heuristic-based move planning.
 
 ## Features
-* Custom Game Engine: Built from scratch using Pygame.
-* Heuristic AI: Real-time move evaluation and pathfinding.
-* Modular Architecture: Logic decoupled into specialized modules for grid management, positioning, and movement execution.
+* **Custom Game Engine:** Built from scratch using Pygame.
+* **Heuristic AI:** Real-time move evaluation and pathfinding.
+* **Modular Architecture:** Logic decoupled into specialized modules for grid management, positioning, and movement execution.
+* **Inference Optimization:** Implements Post-Training Quantization (PTQ) using PyTorch and NumPy to compress heuristic weights from FP32 to INT8, achieving a 75% reduction in parameter memory footprint.
 
 ## Dependencies
 This project is built with Python 3.10+ and utilizes the following libraries:
