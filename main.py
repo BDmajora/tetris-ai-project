@@ -1,6 +1,6 @@
 import pygame
 import copy
-from game import Game
+from src.game import Game
 
 def main():
     # Initialize the pygame module
