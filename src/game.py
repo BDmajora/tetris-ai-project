@@ -13,109 +13,117 @@ from .lock import BlockLocker
 
 class Game:
     def __init__(self, width, height):
-        self.width = width  # Width of the game grid
-        self.height = height  # Height of the game grid
-        self.grid = Grid(width, height)  # Initialize the game grid
-        self.current_block = self.get_new_block()  # Get the first block
-        self.current_position = [self.width // 2 - len(self.current_block.shape[0]) // 2, 0]  # Initial block position
-        self.next_block = self.get_new_block()  # Get the next block
-        self.score = 0  # Initialize score
-        self.level = Level()  # Initialize level
-        self.game_over = False  # Game over flag
-        self.gravity_timer = 0  # Timer to manage gravity effect
-        self.ai = AI(self)  # Initialize AI
-        self.new_block_placed = False  # Flag for new block placement
-        self.target_position = None  # Target position for AI
-        self.target_rotation = 0  # Target rotation for AI
-        self.moving = False  # Moving flag
-        self.screen_handler = ScreenHandler(width, height)  # Screen handler for drawing
-        self.move_planner = MovePlanner(self.ai)  # Move planner for AI
-        self.move_performer = MovePerformer(self)  # Move performer for AI
-        self.block_locker = BlockLocker(self)  # Block locker for handling block locking
-        self.failed_rotation_attempts = 0  # Counter for failed rotation attempts
-        self.max_failed_attempts = 10  # Max allowed failed rotation attempts
+        self.width = width  # Grid width
+        self.height = height  # Grid height
+        self.grid = Grid(width, height)  # Initialize grid
+        self.current_block = self.get_new_block()  # First block
+        self.current_position = [self.width // 2 - len(self.current_block.shape[0]) // 2, 0]  # Start position
+        self.next_block = self.get_new_block()  # Next block
+        self.score = 0  # Score tracker
+        self.level = Level()  # Level tracker
+        self.game_over = False  # Game state flag
+        self.gravity_timer = 0  # Gravity timing
+        self.ai = AI(self)  # AI instance
+        self.new_block_placed = False  # Placement flag
+        self.target_position = None  # AI target position
+        self.target_rotation = 0  # AI target rotation
+        self.moving = False  # Movement state
+        self.screen_handler = ScreenHandler(width, height)  # Drawing handler
+        self.move_planner = MovePlanner(self.ai)  # Path planner
+        self.move_performer = MovePerformer(self)  # Movement executor
+        self.block_locker = BlockLocker(self)  # Locking handler
+        self.failed_rotation_attempts = 0  # Rotation failure count
+        self.max_failed_attempts = 10  # Rotation failure limit
 
     def get_new_block(self):
-        """Get a new random block."""
-        shape_key = random.choice(list(shapes.keys()))  # Randomly select a shape key
-        return create_block(shape_key)  # Create a block with the selected shape
+        # Select random shape and create block
+        shape_key = random.choice(list(shapes.keys()))  
+        return create_block(shape_key)  
 
     def move_block(self, dx, dy):
-        """Move the current block by (dx, dy)."""
-        new_position = [self.current_position[0] + dx, self.current_position[1] + dy]  # Calculate new position
-        if not check_collision(self.grid.grid, self.current_block, new_position):  # Check for collision
-            self.current_position = new_position  # Update position if no collision
-            print(f"Moved block to {self.current_position}")  # Log the move
+        # Calculate new coordinates and check collision
+        new_position = [self.current_position[0] + dx, self.current_position[1] + dy]  
+        if not check_collision(self.grid.grid, self.current_block, new_position):  
+            self.current_position = new_position  # Update if clear
+            print(f"Moved block to {self.current_position}")  
             return True
-        print(f"Cannot move block to {new_position}, collision detected.")  # Log collision
+        print(f"Cannot move block to {new_position}, collision detected.")  
         return False
 
     def rotate_block(self, direction):
-        """Rotate the current block in the given direction."""
-        original_position = self.current_position[:]  # Save original position
-        original_block = copy.deepcopy(self.current_block)  # Save original block state
+        # Save state for potential reset
+        original_position = self.current_position[:]  
+        original_block = copy.deepcopy(self.current_block)  
         
-        if direction == 'counterclockwise':  # Check direction
-            self.current_block.rotate_counterclockwise()  # Rotate block counterclockwise
-            print(f"Trying counterclockwise rotation at position: {self.current_position}")  # Log rotation attempt
+        # Apply rotation based on direction
+        if direction == 'counterclockwise':  
+            self.current_block.rotate_counterclockwise()  
+            print(f"Trying counterclockwise rotation at position: {self.current_position}")  
         else:
-            self.current_block.rotate()  # Rotate block clockwise
-            print(f"Trying clockwise rotation at position: {self.current_position}")  # Log rotation attempt
+            self.current_block.rotate()  
+            print(f"Trying clockwise rotation at position: {self.current_position}")  
 
-        if check_collision(self.grid.grid, self.current_block, self.current_position):  # Check for collision
-            print(f"Collision detected after {direction} rotation at {self.current_position} with shape: {self.current_block.shape}")  # Log collision
-            wall_kick_offsets = [  # Define wall kick offsets
+        # Handle collisions with wall kick logic
+        if check_collision(self.grid.grid, self.current_block, self.current_position):  
+            print(f"Collision detected after {direction} rotation at {self.current_position}")  
+            wall_kick_offsets = [  
                 (0, 1), (0, -1), (1, 0), (-1, 0),
                 (1, 1), (-1, 1), (1, -1), (-1, -1),
                 (2, 0), (-2, 0), (0, 2), (0, -2),
                 (2, 1), (2, -1), (-2, 1), (-2, -1)
             ]
-            for offset in wall_kick_offsets:  # Try each wall kick offset
-                new_position = [original_position[0] + offset[0], original_position[1] + offset[1]]  # Calculate new position
-                print(f"Trying wall kick offset: {offset} -> New position: {new_position}")  # Log wall kick attempt
+            for offset in wall_kick_offsets:  
+                new_position = [original_position[0] + offset[0], original_position[1] + offset[1]]  
+                print(f"Trying wall kick offset: {offset} -> New position: {new_position}")  
+                
+                # Check grid boundaries
                 if (0 <= new_position[0] < self.width - len(self.current_block.shape[0]) and
                     0 <= new_position[1] < self.height - len(self.current_block.shape)):
-                    self.current_position = new_position  # Update position
-                    if not check_collision(self.grid.grid, self.current_block, self.current_position):  # Check for collision
-                        print("Successful wall kick")  # Log successful wall kick
+                    self.current_position = new_position  
+                    if not check_collision(self.grid.grid, self.current_block, self.current_position):  
+                        print("Successful wall kick")  
                         return True
-            print("All wall kicks failed, resetting to original position and block")  # Log failed wall kicks
-            self.current_position = original_position  # Reset to original position
-            self.current_block = original_block  # Reset to original block
+            
+            # Reset if all kicks fail
+            print("All wall kicks failed, resetting position and block")  
+            self.current_position = original_position  
+            self.current_block = original_block  
             return False
         else:
-            print(f"Rotated block to position: {self.current_position}")  # Log successful rotation
+            print(f"Rotated block to position: {self.current_position}")  
             return True
 
     def update(self, delta_time):
-        """Update the game state."""
+        # Exit if game over
         if self.game_over:
-            return  # Do nothing if game is over
+            return  
 
-        self.gravity_timer += delta_time  # Increment gravity timer
+        self.gravity_timer += delta_time  # Update timer
 
-        while self.gravity_timer > self.level.gravity_speed:  # Check if gravity effect should be applied
-            self.gravity_timer -= self.level.gravity_speed  # Reduce gravity timer
-            if self.moving:  # Check if block is moving
-                self.move_performer.perform_ai_move_step_new()  # Perform AI move step
+        # Apply gravity based on level speed
+        while self.gravity_timer > self.level.gravity_speed:  
+            self.gravity_timer -= self.level.gravity_speed  
+            if self.moving:  
+                self.move_performer.perform_ai_move_step_new()  # AI controlled step
             else:
-                if not self.move_block(0, 1):  # Move block down
-                    self.block_locker.lock_block_and_update_state()  # Lock block if it cannot move further
+                if not self.move_block(0, 1):  # Natural fall
+                    self.block_locker.lock_block_and_update_state()  # Lock on impact
 
-        if self.new_block_placed:  # Check if a new block was placed
-            self.move_planner.plan_ai_move(self)  # Plan AI move for the new block
-            self.new_block_placed = False  # Reset new block placed flag
+        # Plan move for new blocks
+        if self.new_block_placed:  
+            self.move_planner.plan_ai_move(self)  
+            self.new_block_placed = False  
 
     def handle_failed_move(self):
-        """Handle a failed move attempt."""
-        print("Handling failed move...")  # Log failed move handling
-        self.block_locker.lock_block_and_update_state()  # Lock block and update state
+        # Process move failure and lock block
+        print("Handling failed move...")  
+        self.block_locker.lock_block_and_update_state()  
 
     def draw(self, screen):
-        """Draw the game state to the screen."""
-        self.screen_handler.draw(screen, self.grid.grid, self.current_block, self.current_position, self.next_block, self.score, self.level.level, self.game_over)  # Draw the game
+        # Render game state via screen handler
+        self.screen_handler.draw(screen, self.grid.grid, self.current_block, self.current_position, self.next_block, self.score, self.level.level, self.game_over)  
 
     def set_game_over(self):
-        """Set the game status to over."""
-        self.game_over = True  # Set game over flag
-        print("Game Over")  # Log game over
+        # Terminate game and log event
+        self.game_over = True  
+        print("Game Over")
