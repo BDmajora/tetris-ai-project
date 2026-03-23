@@ -1,32 +1,8 @@
-# Brody's Tetris Game Solver AI README
+# Tetris AI Simulation
 
-## Overview
-My project was developed in Python 3, using the python games. Steps are to run the project on LMDE 6 based on Debian 12.
-
-## Requirements
-- Python 3.x
-- Visual Studio Code with the Python extension
-- `python3-game` `python3` packages
-
-## Installation
-
-1. **Install Python 3**: Download from Python website.
-2. **Install Visual Studio Code**: Download from Visual Studio Code website.
-3. **Install Python Extension for VS Code**:
-   - Open Visual Studio Code.
-   - Go to Extensions (Activity Bar).
-   - Search for "Python" and install it.
-4. **Install Packages**:
-   sudo apt install python3
-   sudo apt install python3-game
-
-## Running the Tetris AI
-
-1. Clone or Download the Project.
-2. Open the Project in VS Code:
-  - Go to File > Open Folder and select the project directory.
-3. Run the Main File:
-  - In the directory select the main file.
-  - Run either by running the package in the terminal
-    - python ./main.py
-  - Or run with the Run (Play) button at the top right that comes with the python extention.
+## Running
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 main.py
