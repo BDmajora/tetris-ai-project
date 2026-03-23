@@ -9,10 +9,14 @@ A high-performance Tetris Pygame and AI Tetris agent. This project implements a 
 * **Inference Optimization:** Implements Post-Training Quantization (PTQ) using PyTorch and NumPy to compress heuristic weights from FP32 to INT8, achieving a 75% reduction in parameter memory footprint.
 
 ## Dependencies
+
 This project is built with Python 3.10+ and utilizes the following libraries:
-* Pygame: Handles the graphical rendering and event loop.
-* Copy: Standard library used for state-space deep copies during AI planning.
-* Random: Manages randomized block generation logic.
+
+* **Pygame**: Handles the graphical rendering, input handling, and the core game loop.
+* **PyTorch**: Provides the tensor framework for managing AI parameters and evaluating model states.
+* **NumPy**: Executes low-level linear algebra operations and manual affine quantization math for inference optimization.
+* **Copy**: Standard library used for state-space deep copies during AI trajectory planning.
+* **Random**: Manages randomized block generation following the standard Tetris 7-bag system logic.
 
 ## Installation
 
@@ -31,9 +35,3 @@ This project is built with Python 3.10+ and utilizes the following libraries:
 
 Run with the run.py in the root directory:
 python3 run.py
-
-## Libraries used
-
-pygame
-torch
-numpy
