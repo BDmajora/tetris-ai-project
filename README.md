@@ -1,22 +1,36 @@
-# Tetris AI Project
+# High-Performance Tetris AI and Inference Optimization Pipeline
 
-A high-performance Tetris Pygame and AI Tetris agent. This project implements a modular systems architecture to handle grid logic, block collisions, and heuristic-based move planning.
+A high-performance Tetris engine and autonomous AI agent. This project implements a modular systems architecture to handle grid logic, block collisions, and Deep Q-Learning trajectory planning, coupled with a specialized telemetry and optimization suite.
 
 ## Features
-* **Custom Game Engine:** Built from scratch using Pygame.
-* **Heuristic AI:** Real-time move evaluation and pathfinding.
-* **Modular Architecture:** Logic decoupled into specialized modules for grid management, positioning, and movement execution.
-* **Inference Optimization:** Implements Post-Training Quantization (PTQ) using PyTorch and NumPy to compress heuristic weights from FP32 to INT8, achieving a 75% reduction in parameter memory footprint.
 
-## Dependencies
+* **Custom Game Engine:** High-performance Tetris environment built from scratch using Pygame, designed for deterministic AI training cycles.
+* **Deep Q-Learning Agent:** Implements a PyTorch-based neural network that evaluates state-space complexity (holes, height, and column disparity) to execute optimal moves in real-time.
+* **Inference Optimization (PTQ):** Features a custom Post-Training Quantization pipeline. Using NumPy and Linear Algebra, I manually mapped FP32 weights to INT8 precision, achieving a 75% reduction in parameter memory footprint for edge-deployment readiness.
+* **Automated Telemetry and Logging:** Integrated a structured JSON logging system that captures game-by-game performance, epsilon decay, and optimization metrics.
+* **Data Visualization:** A built-in Matplotlib analytics engine that automatically generates training reports (progress_report.png) to visualize learning trends and score convergence.
+
+## Technical Stack and Dependencies
 
 This project is built with Python 3.10+ and utilizes the following libraries:
 
-* **Pygame**: Handles the graphical rendering, input handling, and the core game loop.
-* **PyTorch**: Provides the tensor framework for managing AI parameters and evaluating model states.
+* **PyTorch**: Provides the tensor framework for managing AI parameters, backpropagation, and model state evaluation.
+* **Pygame**: Handles high-speed graphical rendering, hardware input, and the primary game loop.
 * **NumPy**: Executes low-level linear algebra operations and manual affine quantization math for inference optimization.
-* **Copy**: Standard library used for state-space deep copies during AI trajectory planning.
-* **Random**: Manages randomized block generation following the standard Tetris 7-bag system logic.
+* **Matplotlib**: Used for data interpretation and generating visual training reports.
+* **Standard Libraries**: Utilizes json for telemetry, copy for state-space simulations, and random for standard Tetris 7-bag generation logic.
+
+## Project Structure
+
+* run.py: Main entry point featuring an automated training and optimization loop.
+* src/trainer.py: Neural network architecture and DQN Agent logic.
+* src/optimize.py: Quantization scripts for FP32 to INT8 weight conversion.
+* src/logger.py: Modular class for handling training history and JSON persistence.
+* src/plot_results.py: Analytics suite for generating training performance graphs.
+
+## Performance Tracking
+
+The system automatically tracks training progress in training_history.json. Upon exiting the application, the pipeline triggers a final optimization pass and generates a visual report of the agent's learning curve versus exploration rate.
 
 ## Installation
 
