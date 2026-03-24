@@ -13,4 +13,11 @@ __pycache__/
 # OS Metadata
 .DS_Store
 Thumbs.db
+
+# AI Training Data & Brains
+*.pth
+*.json
+
+# Analytics & Reports
+*.png
 EOF
