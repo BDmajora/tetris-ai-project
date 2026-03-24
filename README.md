@@ -35,7 +35,7 @@ The system automatically tracks training progress in training_history.json. Upon
 ## Installation
 
 1. Clone the repository:
-   git clone https://github.com/your-username/tetris-ai-project.git
+   git clone https://github.com/BDmajora/tetris-ai-project.git
    cd tetris-ai-project
 
 2. Set up a virtual environment:
