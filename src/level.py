@@ -3,7 +3,8 @@ import math
 class Level:
     def __init__(self):
         self.level = 0  # NES starts at Level 0
-        self.lines_cleared = 0
+        self.lines_cleared_total = 0
+        self.lines_until_next_level = 10
         
         # NES Frame Table (Frames per 1-cell drop at 60 FPS)
         self.nes_frames = [
@@ -16,22 +17,28 @@ class Level:
 
     def _calculate_delay(self, level):
         # Convert NES frames to seconds: seconds = frames / 60
-        frame_count = self.nes_frames[min(level, len(self.nes_frames) - 1)]
+        # If level exceeds table, use 1 frame (Kill Screen speed)
+        index = min(level, len(self.nes_frames) - 1)
+        frame_count = self.nes_frames[index]
         return frame_count / 60.0
 
     def update_level(self, lines_removed):
-        self.lines_cleared += lines_removed
+        """Processes lines cleared and handles potential multiple level-ups."""
+        self.lines_cleared_total += lines_removed
+        self.lines_until_next_level -= lines_removed
         
-        # Level up every 10 lines
-        if self.lines_cleared >= 10:
+        # While loop handles cases where AI clears 4 lines and jumps 
+        # past the 10-line threshold significantly.
+        while self.lines_until_next_level <= 0:
             self.level += 1
-            self.lines_cleared -= 10 # Carry over extra lines if multiple cleared
+            self.lines_until_next_level += 10 # Reset for next 10 lines
             self.gravity_speed = self._calculate_delay(self.level)
             
             print(f"--- LEVEL UP: {self.level} ---")
             print(f"NES Speed: {self.gravity_speed:.4f}s per drop")
 
     def get_score(self, lines_removed):
-        # NES Original Scoring
+        """NES Original Scoring Multiplier."""
+        # 1 line = 40, 2 = 100, 3 = 300, 4 = 1200
         scoring = {1: 40, 2: 100, 3: 300, 4: 1200}
         return scoring.get(lines_removed, 0) * (self.level + 1)
