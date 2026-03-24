@@ -2,34 +2,36 @@ import math
 
 class Level:
     def __init__(self):
-        self.level = 1
+        self.level = 0  # NES starts at Level 0
         self.lines_cleared = 0
-        self.base_delay = 0.5  # Starting delay (0.5 seconds)
-        self.min_delay = 0.01  # Hard cap to prevent infinite loops
-        self.gravity_speed = self.base_delay
+        
+        # NES Frame Table (Frames per 1-cell drop at 60 FPS)
+        self.nes_frames = [
+            48, 43, 38, 33, 28, 23, 18, 13, 8, 6,  # Levels 0-9
+            5, 5, 5, 4, 4, 4, 3, 3, 3,             # Levels 10-18
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2,          # Levels 19-28
+            1                                      # Level 29+ (Kill Screen)
+        ]
+        self.gravity_speed = self._calculate_delay(self.level)
+
+    def _calculate_delay(self, level):
+        # Convert NES frames to seconds: seconds = frames / 60
+        frame_count = self.nes_frames[min(level, len(self.nes_frames) - 1)]
+        return frame_count / 60.0
 
     def update_level(self, lines_removed):
         self.lines_cleared += lines_removed
         
-        # Only change speed when a new level is reached (every 10 lines)
+        # Level up every 10 lines
         if self.lines_cleared >= 10:
             self.level += 1
-            self.lines_cleared = 0  # Reset for the next level
-            
-            # QUADRATIC SPEED INCREASE: $O(n^2)$
-            # We calculate the speed based on Level squared.
-            # As Level goes up, the delay drops exponentially fast.
-            # Formula: Delay = Base / (1 + 0.1 * Level^2)
-            coefficient = 0.1
-            new_delay = self.base_delay / (1 + (coefficient * (self.level ** 2)))
-            
-            # Apply new speed with a safety floor
-            self.gravity_speed = max(new_delay, self.min_delay)
+            self.lines_cleared -= 10 # Carry over extra lines if multiple cleared
+            self.gravity_speed = self._calculate_delay(self.level)
             
             print(f"--- LEVEL UP: {self.level} ---")
-            print(f"New Gravity Delay: {self.gravity_speed:.4f}s")
+            print(f"NES Speed: {self.gravity_speed:.4f}s per drop")
 
     def get_score(self, lines_removed):
-        # Traditional scoring scaled by the current level
+        # NES Original Scoring
         scoring = {1: 40, 2: 100, 3: 300, 4: 1200}
-        return scoring.get(lines_removed, 0) * self.level
+        return scoring.get(lines_removed, 0) * (self.level + 1)
