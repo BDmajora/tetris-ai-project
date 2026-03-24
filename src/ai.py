@@ -77,14 +77,18 @@ class AI:
         return self.evaluate_grid(grid_final, lines_removed), grid_final
 
     def _drop_block_sim(self, grid, block, x):
-        """Simulates gravity until the block hits something."""
-        if check_collision(grid, block, (x, 0)):
+        """Simulates gravity starting from the visible spawn point."""
+        # Start simulation at y=2 (the visible top)
+        start_y = 2
+        
+        # If it's already colliding at the spawn point, this move is impossible
+        if check_collision(grid, block, (x, start_y)):
             return -1
             
-        y = 0
-        while not check_collision(grid, block, (x, y)):
+        y = start_y
+        while not check_collision(grid, block, (x, y + 1)):
             y += 1
-        return y - 1
+        return y
 
     def evaluate_grid(self, grid, lines_removed):
         """
