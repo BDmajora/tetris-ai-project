@@ -3,8 +3,7 @@ class RewardSystem:
         self.prev_score = 0
 
     def get_heuristic_score(self, metrics, lines_cleared):
-        # We mirror your old successful weights here
-        # But we keep them in a smaller range (divided by 10) for the Neural Network
+        # Weighted evaluation of board state and line clearing efficiency
         score = (lines_cleared ** 2) * 50.0 
         score -= (metrics['holes'] * 4.0)
         score -= (metrics['blockades'] * 2.0)
@@ -14,16 +13,15 @@ class RewardSystem:
         return score
 
     def calculate_reward(self, lines_cleared, metrics, game_over):
+        # Terminal state penalty
         if game_over:
-            return -100.0 # Massive slap for dying
+            return -100.0
 
+        # Calculate comparative state value based on heuristic metrics
         current_score = self.get_heuristic_score(metrics, lines_cleared)
-        
-        # The reward is how much BETTER the board got after this move
-        # This prevents "farming" because it can't gain points without improving
         reward = current_score 
         
-        # Additional bonus for clearing lines to encourage aggressive play
+        # Incremental bonus to incentivize line-clearing behavior
         if lines_cleared > 0:
             reward += (lines_cleared * 10)
             

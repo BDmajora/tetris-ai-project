@@ -3,16 +3,18 @@ class MovePlanner:
         self.ai = ai
 
     def plan_ai_move(self, game):
+        # Retrieve optimal trajectory from AI agent
         best_move = self.ai.get_best_move()
         
-        # If AI returns None (Panic Mode), pick a dummy move so it doesn't just freeze
+        # Panic handling: Default to current state if no valid move identified
         if best_move is None:
-            print("AI BRAIN PANIC: No safe moves found! Emergency drop initiated.")
+            print("AI logic failure: No safe moves identified. Executing emergency drop.")
             game.target_rotation = game.current_block.rotation
             game.target_position = game.current_position[0]
             game.moving = True
             return
 
+        # Target state assignment and execution signal
         game.target_rotation = best_move[0]
         game.target_position = best_move[1]
         game.moving = True
