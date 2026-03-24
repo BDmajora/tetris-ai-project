@@ -41,7 +41,7 @@ class TetrisHeuristics:
     def get_transitions(grid):
         """
         Calculates transitions between filled and empty cells.
-        Now includes 'Wall-Awareness' to encourage building against edges.
+        Includes 'Wall-Awareness' to encourage building against edges.
         """
         width = len(grid[0])
         height = len(grid)
@@ -77,18 +77,18 @@ class TetrisHeuristics:
         return row_transitions, col_transitions
 
     @staticmethod
-    def get_wells(heights):
+    def get_wells(heights, grid_height):
         """
         Calculates deep vertical 'wells'. 
-        Fixed the wall height bug (previously 100).
+        Uses grid_height to treat walls as solid boundaries.
         """
         wells_score = 0
         width = len(heights)
         for i in range(width):
             # Determine height of neighboring columns
-            # If at edge, treat the wall as the height of the current column + 1
-            left = heights[i-1] if i > 0 else heights[i] + 1
-            right = heights[i+1] if i < width - 1 else heights[i] + 1
+            # If at edge, treat the wall as the full height of the board
+            left = heights[i-1] if i > 0 else grid_height
+            right = heights[i+1] if i < width - 1 else grid_height
             
             if left > heights[i] and right > heights[i]:
                 depth = min(left, right) - heights[i]
@@ -98,6 +98,7 @@ class TetrisHeuristics:
 
     @staticmethod
     def get_all_metrics(grid):
+        grid_height = len(grid)
         heights = TetrisHeuristics.get_column_heights(grid)
         holes, blockades = TetrisHeuristics.get_holes_and_blockades(grid)
         r_trans, c_trans = TetrisHeuristics.get_transitions(grid)
@@ -111,5 +112,5 @@ class TetrisHeuristics:
             'row_transitions': r_trans,
             'col_transitions': c_trans,
             'bumpiness': TetrisHeuristics.get_bumpiness(heights),
-            'wells': TetrisHeuristics.get_wells(heights)
+            'wells': TetrisHeuristics.get_wells(heights, grid_height)
         }

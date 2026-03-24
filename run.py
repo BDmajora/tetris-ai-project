@@ -1,44 +1,46 @@
 import pygame
-import copy
 from src.game import Game
 
 def main():
-    # Initialize the pygame module
     pygame.init()
-    
-    # Create a screen with a width and height of 600 pixels
-    # This size is chosen to give space for displaying score and level
     screen = pygame.display.set_mode((600, 600))
-    
-    # Create a clock object to manage the game's frame rate
+    pygame.display.set_caption("Tetris AI Training")
     clock = pygame.time.Clock()
     
-    # Create an instance of the Game class with a grid width of 10 blocks and height of 20 blocks
+    # 1. Initialize the first game
     game = Game(10, 20)
+    
+    # Track which "Generation" or Game Number we are on
+    game_count = 1
 
-    # Main game loop
     while True:
-        # Calculate the time passed since the last frame, converted to seconds
-        delta_time = clock.tick(60) / 1000.0  # Targeting 60 frames per second
+        delta_time = clock.tick(60) / 1000.0
         
-        # Handle events in the game (e.g., key presses, quitting)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()  # Quit pygame
-                return  # Exit the main function
-        
-        # Update the game state based on the elapsed time
+                pygame.quit()
+                return
+
+        # 2. Check if the AI died
+        if game.game_over:
+            print(f"Game {game_count} Finished. Final Score: {game.score}")
+            
+            # Save the brain (the agent) so we don't lose progress
+            current_brain = game.agent 
+            
+            # 3. RESTART: Create a new game but pass in the existing brain
+            game = Game(10, 20)
+            game.agent = current_brain # Inject the learned knowledge
+            game.ai.agent = current_brain # Ensure AI class uses the same brain
+            
+            game_count += 1
+            print(f"Starting Game {game_count}... Epsilon: {game.agent.epsilon:.4f}")
+
+        # Standard Update/Draw
         game.update(delta_time)
-        
-        # Fill the screen with a black color to clear previous drawings
         screen.fill((0, 0, 0))
-        
-        # Draw the current game state onto the screen
         game.draw(screen)
-        
-        # Update the display to show the drawn frame
         pygame.display.flip()
 
-# Check if this script is being run directly (not imported)
 if __name__ == "__main__":
     main()
